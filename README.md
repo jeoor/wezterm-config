@@ -26,16 +26,14 @@ screenshots/             ← 截图
 
 ## 前提条件
 
-- **WezTerm** 终端
-- **JetBrainsMono Nerd Font** v3+（[下载](https://github.com/ryanoasis/nerd-fonts)）
+- [![WezTerm](https://img.shields.io/badge/WezTerm-download-blue)](https://wezterm.org/installation.html)
+- [![Nerd Font](https://img.shields.io/badge/JetBrainsMono_NF-download-green)](https://github.com/ryanoasis/nerd-fonts)
 
 ## 使用
 
 ```sh
-git clone <repo-url> ~/.config/wezterm
+git clone https://github.com/jeoor/wezterm-config.git ~/.config/wezterm
 ```
-
-Windows: 放入 `C:\Users\<用户名>\.config\wezterm\`
 
 ## 配色
 
