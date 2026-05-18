@@ -87,9 +87,11 @@ local function create_base_title(pane_title, process_name)
   elseif base_title == "Launcher" then
     prefix_icon = ICON_PREFIX.launcher
     base_title = base_title:upper()
-  elseif ustr.starts_with(base_title, "Administrator:") then
+  elseif
+    ustr.starts_with(base_title, "Administrator:") or ustr.ends_with(base_title, "(Admin)")
+  then
     prefix_icon = ICON_PREFIX.admin
-    base_title = base_title:gsub("Administrator: ", "")
+    base_title = base_title:gsub("Administrator: ", ""):gsub("%(Admin%)", "")
   elseif ustr.starts_with(process_name, "wsl") then
     prefix_icon = ICON_PREFIX.wsl
   elseif ustr.starts_with(base_title, "InputSelector:") then
@@ -172,30 +174,41 @@ local function check_progress(tab_index, panes)
   return progress
 end
 
-local function check_unseen_output(is_active, panes)
-  if is_active then return nil end
+local function check_unseen_output(is_active, panes, opts)
+  if opts.hide_active_tab_unseen and is_active then return nil end
   local count = 0
+  local limit = opts.unseen_icon == "circle" and 0 or 10
   for _, pane in ipairs(panes) do
-    if count > 10 then break end
+    if count > limit then break end
     if pane.has_unseen_output ~= nil and pane.has_unseen_output then
       count = count + 1
     end
   end
   if count > 0 then
-    return ICON_UNSEEN["numbered_box_" .. count] or ICON_UNSEEN.circle
+    if opts.unseen_icon == "circle" then
+      return ICON_UNSEEN.circle
+    end
+    return ICON_UNSEEN[opts.unseen_icon .. "_" .. count] or ICON_UNSEEN.circle
   end
   return nil
 end
 
-M.setup = function()
+M.setup = function(opts)
+  opts = opts or {}
+  local event_opts = {
+    hide_active_tab_unseen = opts.hide_active_tab_unseen ~= nil and opts.hide_active_tab_unseen or true,
+    unseen_icon = opts.unseen_icon or "numbered_box",
+    show_progress = opts.show_progress ~= nil and opts.show_progress or true,
+  }
+
   wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
     M.cells = {}
 
     local bg, fg
     local process_name = clean_process_name(tab.active_pane.foreground_process_name)
     local base_title, prefix_icon = create_base_title(tab.active_pane.title, process_name)
-    local unseen_icon = check_unseen_output(tab.is_active, tab.panes)
-    local progress = check_progress(tab.tab_index, tab.panes)
+    local unseen_icon = check_unseen_output(tab.is_active, tab.panes, event_opts)
+    local progress = event_opts.show_progress and check_progress(tab.tab_index, tab.panes) or {}
     local inset = 6
 
     if tab.is_active then

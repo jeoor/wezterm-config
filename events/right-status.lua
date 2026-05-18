@@ -73,12 +73,14 @@ local function battery_info()
    return charge, icon .. " ", fg
 end
 
-M.setup = function()
+M.setup = function(opts)
+   local date_format = (opts or {}).date_format or " %a %H:%M"
+
    wezterm.on("update-right-status", function(window, _pane)
       local battery_text, battery_icon, battery_fg = battery_info()
 
       cells
-         :update_segment_text("date_text", wezterm.strftime(" %a %H:%M"))
+         :update_segment_text("date_text", wezterm.strftime(date_format))
          :update_segment_text("battery_text", battery_text)
          :update_segment_text("battery_icon", battery_icon)
          :update_segment_colors("battery_text", { fg = battery_fg })
