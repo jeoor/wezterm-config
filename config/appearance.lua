@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local colors = require("colors.custom")
+local gpu_adapter = require("utils.gpu-adapter")
 
 return {
   term = "xterm-256color",
@@ -7,7 +8,7 @@ return {
   max_fps = 60,
   front_end = "WebGpu",
   webgpu_power_preference = "HighPerformance",
-  webgpu_preferred_adapter = require("utils.gpu-adapter").scoreboard[require("utils.gpu-adapter").best], -- auto-detect best GPU
+  webgpu_preferred_adapter = gpu_adapter.scoreboard[gpu_adapter.best],
   underline_thickness = "1.5pt",
 
   -- color scheme
