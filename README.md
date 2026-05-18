@@ -26,7 +26,7 @@ screenshots/             ← 截图
 
 ## 前提条件
 
-- [![WezTerm](https://img.shields.io/badge/WezTerm-download-blue)](https://wezterm.org/installation.html)
+- [![WezTerm Nightly](https://img.shields.io/badge/WezTerm_Nightly-download-blue)](https://wezterm.org/installation.html)
 - [![Nerd Font](https://img.shields.io/badge/JetBrainsMono_NF-download-green)](https://github.com/ryanoasis/nerd-fonts)
 
 ## 使用

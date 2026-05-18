@@ -86,9 +86,12 @@ M.setup = function(opts)
          :update_segment_colors("battery_text", { fg = battery_fg })
          :update_segment_colors("battery_icon", { fg = battery_fg })
 
-      window:set_right_status(wezterm.format(
-         cells:render({ "date_icon", "date_text", "separator", "battery_text", "battery_icon" })
-      ))
+      local has_battery = battery_text ~= "" and battery_icon ~= " "
+      local render_ids = has_battery
+         and { "date_icon", "date_text", "separator", "battery_text", "battery_icon" }
+         or  { "date_icon", "date_text" }
+
+      window:set_right_status(wezterm.format(cells:render(render_ids)))
    end)
 end
 

@@ -42,8 +42,7 @@ M.setup = function()
         :update_segment_colors(3, { bg = bar_fg })
         :update_segment_colors(4, { fg = bar_fg })
       res = cells:render_all()
-    end
-    if window:leader_is_active() then
+    elseif window:leader_is_active() then
       local leader_fg = "#e0af68"
       cells
         :update_segment_text(2, nf.md_key)
