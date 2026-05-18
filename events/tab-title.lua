@@ -33,6 +33,11 @@ local ICON_UNSEEN = {
   numbered_box_5  = nf.md_numeric_5_box_multiple,  numbered_box_6  = nf.md_numeric_6_box_multiple,
   numbered_box_7  = nf.md_numeric_7_box_multiple,  numbered_box_8  = nf.md_numeric_8_box_multiple,
   numbered_box_9  = nf.md_numeric_9_box_multiple,  numbered_box_10 = nf.md_numeric_9_plus_box_multiple,
+  numbered_circle_1  = nf.md_numeric_1_circle,  numbered_circle_2  = nf.md_numeric_2_circle,
+  numbered_circle_3  = nf.md_numeric_3_circle,  numbered_circle_4  = nf.md_numeric_4_circle,
+  numbered_circle_5  = nf.md_numeric_5_circle,  numbered_circle_6  = nf.md_numeric_6_circle,
+  numbered_circle_7  = nf.md_numeric_7_circle,  numbered_circle_8  = nf.md_numeric_8_circle,
+  numbered_circle_9  = nf.md_numeric_9_circle,  numbered_circle_10 = nf.md_numeric_9_plus_circle,
 }
 
 local GLYPH_SEMI_CIRCLE_LEFT = utf8.char(0xe0b6)
@@ -67,7 +72,8 @@ local function clean_process_name(proc)
 end
 
 local function pct_to_frame(pct)
-  return ICON_PROGRESS_PCT[math.floor(pct * #ICON_PROGRESS_PCT / 100)]
+  local idx = math.max(1, math.floor(pct * #ICON_PROGRESS_PCT / 100))
+  return ICON_PROGRESS_PCT[idx]
 end
 
 local ind_frame = 1
@@ -117,9 +123,10 @@ local function create_title(process_name, base_title, max_width, inset)
     title = base_title
   end
 
-  if title:len() > max_width - inset then
-    local diff = title:len() - max_width + inset
-    title = wezterm.truncate_right(title, title:len() - diff)
+  local cw = wezterm.column_width
+  if cw(title) > max_width - inset then
+    local diff = cw(title) - max_width + inset
+    title = wezterm.truncate_right(title, cw(title) - diff)
   end
   return title
 end
@@ -136,19 +143,34 @@ end
 local progress_stale = (function()
   local status_score = { indeterminate = 100, error = 200, percentage = 300 }
   local entries = {}
+  local CLEANUP_INTERVAL = 300  -- 5 minutes
+  local last_cleanup = os.time()
+
   return function(tab_index, pane_index, status, pct)
     local entry_id = (tab_index << 5) | pane_index
+    local now = os.time()
+
+    -- Periodic cleanup of stale entries
+    if now - last_cleanup > CLEANUP_INTERVAL then
+      for id, entry in pairs(entries) do
+        if now - entry.last_changed > CLEANUP_INTERVAL then
+          entries[id] = nil
+        end
+      end
+      last_cleanup = now
+    end
+
     if not entries[entry_id] then
-      entries[entry_id] = { sum = status_score[status] + pct, last_changed = os.time() }
+      entries[entry_id] = { sum = status_score[status] + pct, last_changed = now }
       return false
     end
     local sum = status_score[status] + pct
     if sum ~= entries[entry_id].sum then
       entries[entry_id].sum = sum
-      entries[entry_id].last_changed = os.time()
+      entries[entry_id].last_changed = now
       return false
     end
-    return os.time() - entries[entry_id].last_changed > PROGRESS_STALE_AFTER
+    return now - entries[entry_id].last_changed > PROGRESS_STALE_AFTER
   end
 end)()
 
