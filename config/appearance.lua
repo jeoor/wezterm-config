@@ -7,6 +7,8 @@ return {
   max_fps = 60,
   front_end = "WebGpu",
   webgpu_power_preference = "HighPerformance",
+  webgpu_preferred_adapter = require("utils.gpu-adapter").scoreboard[require("utils.gpu-adapter").best], -- auto-detect best GPU
+  underline_thickness = "1.5pt",
 
   -- color scheme
   colors = colors,
@@ -19,30 +21,14 @@ return {
   window_background_opacity = 0.95,
   win32_system_backdrop = "Acrylic",
   window_background_gradient = {
-    colors = { "#1A1B26", "#2D344A" }, -- 从你的 base 色到 surface0
+    colors = { "#1a1b26", "#363b54" },
     orientation = { Linear = { angle = -45.0 } }
   },
-  background = {
-    {
-      source = { File = wezterm.config_dir .. "/backdrops/bk.png" },
-      vertical_align = "Middle",
-      horizontal_align = "Center",
-    },
-    {
-      source = { Color = "#1A1B26" },
-      height = "100%",
-      width = "100%",
-      opacity = 0.95,
-    },
-  },
+  -- background managed by utils/backdrops module
 
   -- scrollbar
   enable_scroll_bar = true,
   min_scroll_bar_height = "3cell",
-  colors = {
-    scrollbar_thumb = "#34354D",
-  },
-
   -- tab bar
   enable_tab_bar = true,
   hide_tab_bar_if_only_one_tab = false,
@@ -79,5 +65,19 @@ return {
   inactive_pane_hsb = {
     saturation = 1.0,
     brightness = 1.0,
+  },
+  -- command palette
+  command_palette_fg_color = "#a9b1d6",
+  command_palette_bg_color = "#1A1B26",
+  command_palette_font_size = 12,
+  command_palette_rows = 25,
+
+  -- visual bell: flash cursor instead of beeping
+  visual_bell = {
+    fade_in_function = "EaseIn",
+    fade_in_duration_ms = 250,
+    fade_out_function = "EaseOut",
+    fade_out_duration_ms = 250,
+    target = "CursorColor",
   },
 }

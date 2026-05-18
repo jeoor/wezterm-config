@@ -17,19 +17,18 @@ M.cells = {}
 
 M.colors = {
   default = {
-    bg = "#394260",
-    fg = "#1A1B26",
+    bg = "#363b54",
+    fg = "#1a1b26",
   },
   is_active = {
-    bg = "#7BA5F3",
+    bg = "#7aa2f7",
     fg = "#1A1B26",
   },
   hover = {
-    bg = "#A9B2D4",
+    bg = "#a9b1d6",
     fg = "#1A1B26",
   },
 }
-
 M.set_process_name = function(s)
   local a = string.gsub(s, "(.*[/\\])(.*)", "%2")
   return a:gsub("%.exe$", "")
@@ -115,7 +114,7 @@ M.setup = function()
 
     -- Unseen output alert
     if has_unseen_output then
-      M.push(bg, "#84D0FC", { Intensity = "Bold" }, " " .. GLYPH_CIRCLE)
+      M.push(bg, "#7dcfff", { Intensity = "Bold" }, " " .. GLYPH_CIRCLE)
     end
 
     -- Right padding
@@ -125,6 +124,19 @@ M.setup = function()
     M.push(fg, bg, { Intensity = "Bold" }, GLYPH_SEMI_CIRCLE_RIGHT)
 
     return M.cells
+  end)
+
+  wezterm.on("tabs.toggle-tab-bar", function(window, _pane)
+    local cfg = window:effective_config()
+    window:set_config_overrides({
+      enable_tab_bar = not cfg.enable_tab_bar,
+      background = cfg.background,
+    })
+  end)
+
+  wezterm.on("tabs.reset-tab-title", function(window, _pane)
+    local tab = window:active_tab()
+    if tab then tab:set_title("") end
   end)
 end
 

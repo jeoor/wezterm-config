@@ -1,22 +1,41 @@
 local wezterm = require("wezterm")
+local launch_menu = require("config.launch").launch_menu
+local domains = require("config.domains")
+local Cells = require("utils.cells")
+local nf = wezterm.nerdfonts
+local act = wezterm.action
+local attr = Cells.attr
 
 local M = {}
 
+local cells = Cells:new()
+  :add_segment("icon", " " .. nf.oct_terminal .. " ", { fg = "#7aa2f7" })
+  :add_segment("wsl", " " .. nf.cod_terminal_linux .. " ", { fg = "#7aa2f7" })
+  :add_segment("label", "", { fg = "#a9b1d6" }, attr(attr.intensity("Bold")))
+
+local choices, data = {}, {}
+for _, v in ipairs(launch_menu) do
+  cells:update_text("label", v.label)
+  table.insert(choices, { id = tostring(#choices + 1), label = wezterm.format(cells:render({ "icon", "label" })) })
+  table.insert(data, { args = v.args, domain = "DefaultDomain" })
+end
+for _, v in ipairs(domains.wsl_domains) do
+  cells:update_text("label", v.name)
+  table.insert(choices, { id = tostring(#choices + 1), label = wezterm.format(cells:render({ "wsl", "label" })) })
+  table.insert(data, { domain = { DomainName = v.name } })
+end
+
 M.setup = function()
   wezterm.on("new-tab-button-click", function(window, pane, button, default_action)
-    wezterm.log_info("new-tab", window, pane, button, default_action)
-    if default_action and button == "Left" then
-      window:perform_action(default_action, pane)
-    end
-
-    if default_action and button == "Right" then
-      window:perform_action(
-        wezterm.action.ShowLauncherArgs({
-          title = "󰈲 Select/Search:",
-          flags = "FUZZY|LAUNCH_MENU_ITEMS|DOMAINS",
-        }),
-        pane
-      )
+    if button == "Left" and default_action then window:perform_action(default_action, pane) end
+    if button == "Right" then
+      window:perform_action(act.InputSelector({
+        title = "InputSelector: Launch Menu", choices = choices, fuzzy = true,
+        fuzzy_description = nf.md_rocket .. " Select: ",
+        action = wezterm.action_callback(function(_w, _p, id)
+          if id then window:perform_action(act.SpawnCommandInNewTab(data[tonumber(id)]), pane) end
+        end),
+      }), pane)
     end
     return false
   end)

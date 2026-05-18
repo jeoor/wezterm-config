@@ -10,7 +10,9 @@ return {
   scrollback_lines = 5000,
 
   -- paste behaviours
+  warn_about_missing_glyphs = false,
   canonicalize_pasted_newlines = "CarriageReturn",
+  audible_bell = "Disabled",
 
   hyperlink_rules = {
     -- Matches: a URL in parens: (URL)
