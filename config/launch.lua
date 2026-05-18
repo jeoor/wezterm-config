@@ -7,7 +7,7 @@ if platform.is_win then
   options.launch_menu = {
     { label = "󰍲 PowerShell", args = { "powershell", "-nologo" } },
     { label = "󰍲 Pwsh", args = { "pwsh", "-nologo" } },
-    { label = "󰍲 Cmd", args = { "cmd" } },
+    { label = "󰍲 Cmd", args = { "cmd", "/k" } },
     { label = " Nushell", args = { "nu" } },
     { label = "󰣇 Arch", args = { "wsl" } },
     { label = " Ubuntu", args = { "wsl", "-d", "Ubuntu-22.04" } },

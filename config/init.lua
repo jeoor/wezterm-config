@@ -1,5 +1,3 @@
-local wezterm = require("wezterm")
-
 local Config = {}
 
 -- window positioning disabled: auto-maximize handles startup

@@ -23,7 +23,7 @@ function OptsValidator:validate(opts)
     if value == nil then
       valid[opt.name] = opt.default
     elseif type(value) ~= opt.type then
-      table.insert(errors, string.format('"%s" must be %s', opt.name, opt.type))
+      table.insert(errors, string.format('"%s" must be %s, got %s', opt.name, opt.type, type(value)))
       valid[opt.name] = opt.default
     elseif opt.enum and not tbl_contains(opt.enum, value) then
       table.insert(errors, string.format('"%s" must be one of [%s]', opt.name, table.concat(opt.enum, ", ")))

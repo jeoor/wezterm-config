@@ -47,7 +47,7 @@ end
 function BackDrops:choices()
   local choices = {}
   for idx, file in ipairs(self.images) do
-    table.insert(choices, { id = tostring(idx), label = file:match("([^/]+)$") })
+    table.insert(choices, { id = tostring(idx), label = file:match("([^/\\]+)$") })
   end
   return choices
 end

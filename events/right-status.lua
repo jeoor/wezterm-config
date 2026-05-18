@@ -1,75 +1,93 @@
 local wezterm = require("wezterm")
-local math = require("utils.math")
+local umath = require("utils.math")
+local Cells = require("utils.cells")
+local nf = wezterm.nerdfonts
+local attr = Cells.attr
+
 local M = {}
 
-M.separator_char = " ~ "
-
-M.colors = {
-  date_fg = "#7aa2f7",
-  date_bg = "#1a1b26",
-  battery_fg = "#7dcfff",
-  battery_bg = "#1a1b26",
-  separator_fg = "#a9b1d6",
-  separator_bg = "#1A1B26",
+-- stylua: ignore
+local discharging_icons = {
+   nf.md_battery_10,
+   nf.md_battery_20,
+   nf.md_battery_30,
+   nf.md_battery_40,
+   nf.md_battery_50,
+   nf.md_battery_60,
+   nf.md_battery_70,
+   nf.md_battery_80,
+   nf.md_battery_90,
+   nf.md_battery,
+}
+-- stylua: ignore
+local charging_icons = {
+   nf.md_battery_charging_10,
+   nf.md_battery_charging_20,
+   nf.md_battery_charging_30,
+   nf.md_battery_charging_40,
+   nf.md_battery_charging_50,
+   nf.md_battery_charging_60,
+   nf.md_battery_charging_70,
+   nf.md_battery_charging_80,
+   nf.md_battery_charging_90,
+   nf.md_battery_charging,
 }
 
-M.cells = {} -- wezterm FormatItems (ref: https://wezfurlong.org/wezterm/config/lua/wezterm/format.html)
+-- stylua: ignore
+local colors = {
+   date      = { fg = "#7aa2f7", bg = "#1a1b26" },
+   battery   = { fg = "#9ece6a", bg = "#1a1b26" },
+   charging  = { fg = "#7dcfff", bg = "#1a1b26" },
+   low       = { fg = "#f7768e", bg = "#1a1b26" },
+   separator = { fg = "#a9b1d6", bg = "#1A1B26" },
+}
 
----@param text string
----@param icon string
----@param fg string
----@param bg string
----@param separate boolean
-M.push = function(text, icon, fg, bg, separate)
-  table.insert(M.cells, { Foreground = { Color = fg } })
-  table.insert(M.cells, { Background = { Color = bg } })
-  table.insert(M.cells, { Attribute = { Intensity = "Bold" } })
-  table.insert(M.cells, { Text = icon .. " " .. text .. " " })
+local cells = Cells:new()
+   :add_segment("date_icon", nf.fa_calendar .. " ", colors.date, attr(attr.intensity("Bold")))
+   :add_segment("date_text", "", colors.date, attr(attr.intensity("Bold")))
+   :add_segment("separator", " " .. nf.oct_dash .. " ", colors.separator)
+   :add_segment("battery_text", "", colors.battery, attr(attr.intensity("Bold")))
+   :add_segment("battery_icon", " ", colors.battery)
 
-  if separate then
-    table.insert(M.cells, { Foreground = { Color = M.colors.separator_fg } })
-    table.insert(M.cells, { Background = { Color = M.colors.separator_bg } })
-    table.insert(M.cells, { Text = M.separator_char })
-  end
+local function battery_info()
+   local charge = ""
+   local icon = ""
+   local fg = colors.battery.fg
 
-  table.insert(M.cells, "ResetAttributes")
-end
+   for _, b in ipairs(wezterm.battery_info()) do
+      local idx = umath.clamp(umath.round(b.state_of_charge * 10), 1, 10)
+      charge = string.format("%.0f%%", b.state_of_charge * 100)
 
-M.set_date = function()
-  local date = wezterm.strftime(" %a %H:%M")
-  M.push(date, "", M.colors.date_fg, M.colors.date_bg, true)
-end
+      if b.state == "Charging" or b.state == "Full" then
+         icon = charging_icons[idx]
+         fg = colors.charging.fg
+      else
+         icon = discharging_icons[idx]
+         if b.state_of_charge <= 0.2 then
+            fg = colors.low.fg
+         end
+      end
+      break  -- only primary battery
+   end
 
-M.set_battery = function()
-  -- ref: https://wezfurlong.org/wezterm/config/lua/wezterm/battery_info.html
-  local discharging_icons = { "󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹" }
-  local charging_icons = { "󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅" }
-
-  local charge = ""
-  local icon = ""
-
-  for _, b in ipairs(wezterm.battery_info()) do
-    local idx = math.clamp(math.round(b.state_of_charge * 10), 1, 10)
-    charge = string.format("%.0f%%", b.state_of_charge * 100)
-
-    if b.state == "Charging" then
-      icon = charging_icons[idx]
-    else
-      icon = discharging_icons[idx]
-    end
-  end
-
-  M.push(charge, icon, M.colors.battery_fg, M.colors.battery_bg, false)
+   return charge, icon .. " ", fg
 end
 
 M.setup = function()
-  wezterm.on("update-right-status", function(window, _pane)
-    M.cells = {}
-    M.set_date()
-    M.set_battery()
+   wezterm.on("update-right-status", function(window, _pane)
+      local battery_text, battery_icon, battery_fg = battery_info()
 
-    window:set_right_status(wezterm.format(M.cells))
-  end)
+      cells
+         :update_segment_text("date_text", wezterm.strftime(" %a %H:%M"))
+         :update_segment_text("battery_text", battery_text)
+         :update_segment_text("battery_icon", battery_icon)
+         :update_segment_colors("battery_text", { fg = battery_fg })
+         :update_segment_colors("battery_icon", { fg = battery_fg })
+
+      window:set_right_status(wezterm.format(
+         cells:render({ "date_icon", "date_text", "separator", "battery_text", "battery_icon" })
+      ))
+   end)
 end
 
 return M
