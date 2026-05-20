@@ -45,29 +45,38 @@ local colors = {
 local cells = Cells:new()
    :add_segment("date_icon", nf.fa_calendar .. " ", colors.date, attr(attr.intensity("Bold")))
    :add_segment("date_text", "", colors.date, attr(attr.intensity("Bold")))
-   :add_segment("separator", " | ", colors.separator)
+   :add_segment("separator", "  |  ", colors.separator)
    :add_segment("battery_text", "", colors.battery, attr(attr.intensity("Bold")))
    :add_segment("battery_icon", " ", colors.battery)
 
 local function battery_info()
-   local charge = ""
-   local icon = ""
-   local fg = colors.battery.fg
+   local total_soc = 0
+   local any_charging = false
+   local any_low = false
+   local count = 0
 
    for _, b in ipairs(wezterm.battery_info()) do
-      local idx = umath.clamp(umath.round(b.state_of_charge * 10), 1, 10)
-      charge = string.format("%.0f%%", b.state_of_charge * 100)
-
+      total_soc = total_soc + b.state_of_charge
       if b.state == "Charging" or b.state == "Full" then
-         icon = charging_icons[idx]
-         fg = colors.charging.fg
-      else
-         icon = discharging_icons[idx]
-         if b.state_of_charge <= 0.2 then
-            fg = colors.low.fg
-         end
+         any_charging = true
       end
-      break  -- only primary battery
+      if b.state_of_charge <= 0.2 then
+         any_low = true
+      end
+      count = count + 1
+   end
+
+   local avg_soc = count > 0 and total_soc / count or 0
+   local idx = umath.clamp(umath.round(avg_soc * 10), 1, 10)
+   local charge = string.format("%.0f%%", avg_soc * 100)
+   local icon, fg
+
+   if any_charging then
+      icon = charging_icons[idx]
+      fg = colors.charging.fg
+   else
+      icon = discharging_icons[idx]
+      fg = any_low and colors.low.fg or colors.battery.fg
    end
 
    return charge .. " ", icon .. " ", fg

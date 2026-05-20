@@ -91,18 +91,8 @@ do
     { key = "[", mods = mod.SUPER_REV, action = act.MoveTabRelative(-1) },
     { key = "]", mods = mod.SUPER_REV, action = act.MoveTabRelative(1) },
     -- rename tab (USER: Shift+Ctrl+R, master: Ctrl+0)
-    { key = "R", mods = mod.SUPER_REV, action = act.PromptInputLine {
-      description = "Enter new name for tab",
-      action = wezterm.action_callback(function(window, pane, line)
-        if line then window:active_tab():set_title(line) end
-      end),
-    }},
-    { key = "0", mods = mod.SUPER, action = act.PromptInputLine {
-      description = "Enter new name for tab",
-      action = wezterm.action_callback(function(window, pane, line)
-        if line then window:active_tab():set_title(line) end
-      end),
-    }},
+    { key = "R", mods = mod.SUPER_REV, action = act.EmitEvent("tabs.manual-update-tab-title") },
+    { key = "0", mods = mod.SUPER, action = act.EmitEvent("tabs.manual-update-tab-title") },
     -- undo rename (master: SUPER_REV+0)
     { key = "0", mods = mod.SUPER_REV, action = act.EmitEvent("tabs.reset-tab-title") },
     -- toggle tab-bar (master: SUPER+9)
