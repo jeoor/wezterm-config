@@ -66,7 +66,11 @@ local function battery_info()
       count = count + 1
    end
 
-   local avg_soc = count > 0 and total_soc / count or 0
+   if count == 0 then
+      return "", "", colors.battery.fg
+   end
+
+   local avg_soc = total_soc / count
    local idx = umath.clamp(umath.round(avg_soc * 10), 1, 10)
    local charge = string.format("%.0f%%", avg_soc * 100)
    local icon, fg
