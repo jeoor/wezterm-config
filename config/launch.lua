@@ -6,11 +6,9 @@ if platform.is_win then
   options.default_prog = { "nu" }
   options.launch_menu = {
     { label = " Nushell", args = { "nu" } },
-    { label = "󰍲 Pwsh", args = { "pwsh", "-nologo" } },
-    { label = "󰍲 PowerShell", args = { "powershell", "-nologo" } },
-    { label = "󰍲 Cmd", args = { "cmd", "/k" } },
-    { label = "󰣇 Arch", args = { "wsl" } },
-    { label = " Ubuntu", args = { "wsl", "-d", "Ubuntu-22.04" } },
+    { label = "󰨊 Pwsh", args = { "pwsh", "-nologo" } },
+    { label = " PowerShell", args = { "powershell", "-nologo" } },
+    { label = " Cmd", args = { "cmd", "/k" } },
     { label = " GitBash", args = { "D:/Scoop/apps/git/current/bin/bash.exe" } },
     { label = "󰌽 MSYS2 UCRT", args = { "cmd", "/c", "D:/msys64/msys2_shell.cmd -defterm -here -no-start -ucrt64" } },
   }
