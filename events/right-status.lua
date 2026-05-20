@@ -43,7 +43,7 @@ local colors = {
 }
 
 local cells = Cells:new()
-   :add_segment("date_icon", nf.fa_calendar .. " ", colors.date, attr(attr.intensity("Bold")))
+   :add_segment("date_icon", nf.fa_calendar .. "  ", colors.date, attr(attr.intensity("Bold")))
    :add_segment("date_text", "", colors.date, attr(attr.intensity("Bold")))
    :add_segment("separator", " ~ ", colors.separator)
    :add_segment("battery_text", "", colors.battery, attr(attr.intensity("Bold")))
@@ -70,7 +70,7 @@ local function battery_info()
       break  -- only primary battery
    end
 
-   return charge, icon .. " ", fg
+   return charge, " " .. icon .. " ", fg
 end
 
 M.setup = function(opts)
