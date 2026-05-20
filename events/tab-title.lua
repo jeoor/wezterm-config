@@ -118,15 +118,20 @@ end
 local function create_title(process_name, base_title, max_width, inset)
   local title
   if process_name:len() > 0 then
-    title = process_name .. " ~ " .. base_title
+    if base_title:len() > 0 then
+      title = process_name .. "  " .. base_title
+    else
+      title = process_name
+    end
   else
     title = base_title
   end
 
   local cw = wezterm.column_width
-  if cw(title) > max_width - inset then
-    local diff = cw(title) - max_width + inset
-    title = wezterm.truncate_right(title, cw(title) - diff)
+  local available = max_width - inset
+  if cw(title) > available then
+    local trunc = math.max(1, available - cw(".."))
+    title = wezterm.truncate_right(title, trunc) .. ".."
   end
   return title
 end
@@ -231,7 +236,9 @@ M.setup = function(opts)
     local base_title, prefix_icon = create_base_title(tab.active_pane.title, process_name)
     local unseen_icon = check_unseen_output(tab.is_active, tab.panes, event_opts)
     local progress = event_opts.show_progress and check_progress(tab.tab_index, tab.panes) or {}
-    local inset = 6
+    local right_width = 2 + (#progress * 2) + (unseen_icon and 2 or 0)
+    local left_width = 1 + (prefix_icon and 2 or 0)
+    local inset = left_width + right_width + 1
 
     if tab.is_active then
       bg = M.colors.is_active.bg
@@ -244,8 +251,6 @@ M.setup = function(opts)
       fg = M.colors.default.fg
     end
 
-    if prefix_icon then inset = inset + 2 end
-
     local title = create_title(process_name, base_title, max_width, inset)
 
     -- Left semi-circle (color-swapped: transparent=fg, solid=bg)
@@ -253,20 +258,21 @@ M.setup = function(opts)
 
     -- Prefix icon (admin/wsl/debug/process)
     if prefix_icon then
-      M.push(bg, fg, { Intensity = "Bold" }, " " .. prefix_icon .. " ")
+      M.push(bg, fg, { Intensity = "Bold" }, prefix_icon .. " ")
     end
 
     -- Title
     M.push(bg, fg, { Intensity = "Bold" }, " " .. title)
 
-    -- Progress indicator
+    -- Progress indicator (color by status)
+    local progress_colors = { percentage = "#9df296", error = "#f7768e", indeterminate = "#a9b1d6" }
     for _, prog in ipairs(progress) do
-      M.push(bg, "#9df296", { Intensity = "Bold" }, " " .. prog.icon)
+      M.push(bg, progress_colors[prog.status] or "#9df296", { Intensity = "Bold" }, " " .. prog.icon)
     end
 
     -- Unseen output alert
     if unseen_icon then
-      M.push(bg, "#7dcfff", { Intensity = "Bold" }, " " .. unseen_icon)
+      M.push(bg, "#7dcfff", { Intensity = "Bold" }, "  " .. unseen_icon)
     end
 
     -- Right padding + right semi-circle (color-swapped)

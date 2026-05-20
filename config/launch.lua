@@ -5,8 +5,8 @@ local options = { default_prog = {}, launch_menu = {} }
 if platform.is_win then
   options.default_prog = { "nu" }
   options.launch_menu = {
-    { label = "󰍲 PowerShell", args = { "powershell", "-nologo" } },
     { label = "󰍲 Pwsh", args = { "pwsh", "-nologo" } },
+    { label = "󰍲 PowerShell", args = { "powershell", "-nologo" } },
     { label = "󰍲 Cmd", args = { "cmd", "/k" } },
     { label = " Nushell", args = { "nu" } },
     { label = "󰣇 Arch", args = { "wsl" } },

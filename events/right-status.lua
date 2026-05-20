@@ -43,9 +43,9 @@ local colors = {
 }
 
 local cells = Cells:new()
-   :add_segment("date_icon", nf.fa_calendar .. "  ", colors.date, attr(attr.intensity("Bold")))
+   :add_segment("date_icon", nf.fa_calendar .. " ", colors.date, attr(attr.intensity("Bold")))
    :add_segment("date_text", "", colors.date, attr(attr.intensity("Bold")))
-   :add_segment("separator", " ~ ", colors.separator)
+   :add_segment("separator", " | ", colors.separator)
    :add_segment("battery_text", "", colors.battery, attr(attr.intensity("Bold")))
    :add_segment("battery_icon", " ", colors.battery)
 
@@ -70,25 +70,25 @@ local function battery_info()
       break  -- only primary battery
    end
 
-   return charge, " " .. icon .. " ", fg
+   return charge .. " ", icon .. " ", fg
 end
 
 M.setup = function(opts)
-   local date_format = (opts or {}).date_format or " %a %H:%M"
+   local date_format = (opts or {}).date_format or " %a %H:%M:%S"
 
    wezterm.on("update-right-status", function(window, _pane)
       local battery_text, battery_icon, battery_fg = battery_info()
 
       cells
          :update_segment_text("date_text", wezterm.strftime(date_format))
-         :update_segment_text("battery_text", battery_text)
          :update_segment_text("battery_icon", battery_icon)
-         :update_segment_colors("battery_text", { fg = battery_fg })
+         :update_segment_text("battery_text", battery_text)
          :update_segment_colors("battery_icon", { fg = battery_fg })
+         :update_segment_colors("battery_text", { fg = battery_fg })
 
       local has_battery = battery_text ~= "" and battery_icon ~= " "
       local render_ids = has_battery
-         and { "date_icon", "date_text", "separator", "battery_text", "battery_icon" }
+         and { "date_icon", "date_text", "separator", "battery_icon", "battery_text" }
          or  { "date_icon", "date_text" }
 
       window:set_right_status(wezterm.format(cells:render(render_ids)))
