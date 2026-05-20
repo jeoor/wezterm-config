@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local platform = require("utils.platform")
 
 local font = "JetBrainsMono NF"
-local font_size = 12
+local font_size = platform.is_mac and 14 or (platform.is_win and 12 or 11)
 
 return {
   font = wezterm.font({ family = font, weight = "Medium" }),
