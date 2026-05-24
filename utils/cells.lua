@@ -80,6 +80,7 @@ Cells.attr = setmetatable(attr, {
 function Cells:new()
    return setmetatable({
       segments = {},
+      segment_order = {},
    }, self)
 end
 
@@ -90,6 +91,9 @@ end
 ---@param attributes? FormatItem.Attribute[]
 function Cells:add_segment(segment_id, text, color, attributes)
    color = color or {}
+   if self.segments[segment_id] == nil then
+      table.insert(self.segment_order, segment_id)
+   end
 
    ---@type FormatItem[]
    local items = {}
@@ -123,6 +127,9 @@ end
 ---@param segment_id string|number
 ---@param items? FormatItem[][]
 function Cells:add_nested_segment(segment_id, items)
+   if self.segments[segment_id] == nil then
+      table.insert(self.segment_order, segment_id)
+   end
    self.segments[segment_id] = {
       nested_items = items or {},
       nested = true,
@@ -217,7 +224,7 @@ end
 function Cells:extend_nested_segment(segment_id, items)
    self:_check_segment(segment_id)
    self:_check_nested(segment_id, true)
-   for _, item in pairs(items) do
+   for _, item in ipairs(items) do
       table.insert(self.segments[segment_id].nested_items, item)
    end
    return self
@@ -231,14 +238,14 @@ function Cells:render(ids)
    for _, id in ipairs(ids) do
       self:_check_segment(id)
       if self.segments[id].nested then
-         for _, nested in pairs(self.segments[id].nested_items) do
-            for _, item in pairs(nested) do
+         for _, nested in ipairs(self.segments[id].nested_items) do
+            for _, item in ipairs(nested) do
                table.insert(cells, item)
             end
          end
          goto continue
       end
-      for _, item in pairs(self.segments[id].items) do
+      for _, item in ipairs(self.segments[id].items) do
          table.insert(cells, item)
       end
       ::continue::
@@ -251,16 +258,17 @@ end
 ---@return FormatItem[]
 function Cells:render_all()
    local cells = {}
-   for _, segment in pairs(self.segments) do
+   for _, segment_id in ipairs(self.segment_order) do
+      local segment = self.segments[segment_id]
       if segment.nested then
-         for _, nested in pairs(segment.nested_items) do
-            for _, item in pairs(nested) do
+         for _, nested in ipairs(segment.nested_items) do
+            for _, item in ipairs(nested) do
                table.insert(cells, item)
             end
          end
          goto continue
       end
-      for _, item in pairs(segment.items) do
+      for _, item in ipairs(segment.items) do
          table.insert(cells, item)
       end
       ::continue::
@@ -271,6 +279,7 @@ end
 ---Reset all segments
 function Cells:reset()
    self.segments = {}
+   self.segment_order = {}
 end
 
 return Cells

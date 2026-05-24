@@ -21,6 +21,7 @@ local ICON_PREFIX = {
   admin    = nf.md_shield_half_full,
   wsl      = nf.cod_terminal_linux,
   debug    = nf.fa_bug,
+  launcher = nf.cod_terminal,
   select   = nf.md_selection_search,
   edit     = nf.fa_edit,
 }
@@ -72,7 +73,8 @@ local function clean_process_name(proc)
 end
 
 local function pct_to_frame(pct)
-  local idx = math.max(1, math.floor(pct * #ICON_PROGRESS_PCT / 100))
+  pct = tonumber(pct) or 0
+  local idx = math.max(1, math.min(#ICON_PROGRESS_PCT, math.floor(pct * #ICON_PROGRESS_PCT / 100)))
   return ICON_PROGRESS_PCT[idx]
 end
 
@@ -194,6 +196,7 @@ local function check_progress(tab_index, panes)
       status, icon, pct = "error", pct_to_frame(prog.Error), prog.Error
     end
 
+    pct = tonumber(pct) or 0
     if icon and status and not progress_stale(tab_index, pane.pane_index, status, pct) then
       table.insert(progress, { icon = icon, status = status })
     end
