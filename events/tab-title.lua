@@ -4,16 +4,16 @@ local nf = wezterm.nerdfonts
 
 -- stylua: ignore
 local process_icons = {
-  cmd         = utf8.char(0xe62a),  powershell  = utf8.char(0xe70f),
-  pwsh        = utf8.char(0xe70f),  nu          = utf8.char(0xe7a8),
-  elvish      = utf8.char(0xfc6f),  yori        = utf8.char(0xf1d4),
-  nya         = utf8.char(0xf61a),  wsl         = utf8.char(0xf83c),
-  bash        = utf8.char(0xf83c),  zsh         = utf8.char(0xf83c),
-  fish        = utf8.char(0xf83c),  sh          = utf8.char(0xf83c),
-  vim         = utf8.char(0xe62b),  nvim        = utf8.char(0xe62b),
-  vi          = utf8.char(0xe62b),  less        = utf8.char(0xf718),
-  more        = utf8.char(0xf718),  python      = utf8.char(0xf820),
-  node        = utf8.char(0xe74e),  deno        = utf8.char(0xe628),
+  cmd         = nf.cod_terminal_cmd,        powershell  = nf.cod_terminal_powershell,
+  pwsh        = nf.cod_terminal_powershell,  nu          = nf.cod_terminal,
+  elvish      = nf.cod_terminal,             yori        = nf.cod_terminal,
+  nya         = nf.cod_terminal,             wsl         = nf.fa_linux,
+  bash        = nf.cod_terminal_bash,        zsh         = nf.cod_terminal_zsh,
+  fish        = nf.cod_terminal,             sh          = nf.cod_terminal,
+  vim         = nf.seti_vim,                 nvim        = nf.seti_vim,
+  vi          = nf.seti_vim,                 less        = nf.fa_file,
+  more        = nf.fa_file,                  python      = nf.dev_python,
+  node        = nf.fa_node_js,                deno        = nf.cod_globe,
 }
 
 -- stylua: ignore
