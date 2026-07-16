@@ -59,7 +59,7 @@ git clone https://github.com/jeoor/wezterm-config.git ~/.config/wezterm
 | 快捷键 | 功能 |
 |---|---|
 | `Ctrl+T` | 新建 |
-| `Shift+Ctrl+T` / `U` | WSL:Arch / WSL:Ubuntu |
+| `Shift+Ctrl+T` | WSL:Arch |
 | `Shift+Ctrl+W` | 关闭 |
 | `Ctrl+[` / `Ctrl+]` | 切换 |
 | `Shift+Ctrl+[` / `Shift+Ctrl+]` | 移动 |

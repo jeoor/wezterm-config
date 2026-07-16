@@ -35,9 +35,7 @@ do
   for _, v in ipairs(t) do table.insert(keys, v) end
 end
 
--- ==================== QuickSelect URL ====================
--- master uses SUPER_REV+u, but USER uses Shift+Ctrl+u for WSL:Ubuntu
--- Adapted: Shift+Ctrl+o (o=open)
+-- ==================== QuickSelect URL (Shift+Ctrl+o) ====================
 do
   local url_patterns = {
     "\\((https?://\\S+)\\)", "\\[(https?://\\S+)\\]", "\\{(https?://\\S+)\\}",
@@ -84,7 +82,6 @@ do
   local t = {
     { key = "t", mods = mod.SUPER, action = act.SpawnTab("DefaultDomain") },
     { key = "t", mods = mod.SUPER_REV, action = act.SpawnTab({ DomainName = "WSL:Arch" }) },
-    { key = "u", mods = mod.SUPER_REV, action = act.SpawnTab({ DomainName = "WSL:Ubuntu" }) },
     { key = "w", mods = mod.SUPER_REV, action = act.CloseCurrentTab({ confirm = false }) },
     { key = "[", mods = mod.SUPER, action = act.ActivateTabRelative(-1) },
     { key = "]", mods = mod.SUPER, action = act.ActivateTabRelative(1) },
