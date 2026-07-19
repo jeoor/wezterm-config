@@ -15,8 +15,8 @@ local cells = Cells:new()
   :add_segment("label", "", { fg = "#a9b1d6" }, attr(attr.intensity("Bold")))
 
 local launch_menu_schema = OptsValidator:new({
-  { name = "label", type = "string" },
-  { name = "args", type = "table" },
+  { name = "label", type = "string", required = true },
+  { name = "args", type = "table", table_of = "string", required = true },
 })
 
 local choices, data = {}, {}

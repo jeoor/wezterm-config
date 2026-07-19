@@ -4,6 +4,8 @@ local M = {}
 
 local state_file = wezterm.config_dir .. "/.screen_state"
 local last_saved_name = nil
+local retry_after = 0
+local SAVE_RETRY_SECONDS = 60
 
 --- 读取上次驻留的屏幕名称
 function M.load_screen_name()
@@ -18,36 +20,36 @@ end
 
 --- 保存屏幕名称
 function M.save_screen_name(name)
-  if not name then return end
-  if name == last_saved_name then return end
-  local f = io.open(state_file, "w")
-  if f then
-    f:write(name)
-    f:close()
-    last_saved_name = name
+  local now = os.time()
+  if not name or name == last_saved_name or now < retry_after then return end
+
+  local f, open_error = io.open(state_file, "w")
+  if not f then
+    wezterm.log_warn("cannot save screen state: " .. tostring(open_error))
+    retry_after = now + SAVE_RETRY_SECONDS
+    return
   end
+
+  local written, write_error = f:write(name)
+  local closed, close_error = f:close()
+  if not written or not closed then
+    wezterm.log_warn("cannot save screen state: " .. tostring(write_error or close_error))
+    retry_after = now + SAVE_RETRY_SECONDS
+    return
+  end
+  last_saved_name = name
+  retry_after = 0
 end
 
 --- 根据名称查找屏幕对象
 function M.find_screen(name)
   if not name then return nil end
-  for _, s in ipairs(wezterm.gui.screens()) do
-    if s.name == name then return s end
-  end
-  return nil
+  return wezterm.gui.screens().by_name[name]
 end
 
---- 通过窗口中心点判断当前所在屏幕
-function M.detect_screen(win)
-  local dims = win:get_dimensions()
-  local cx = dims.pixel_width / 2 + dims.pixel_left
-  local cy = dims.pixel_height / 2 + dims.pixel_top
-  for _, s in ipairs(wezterm.gui.screens()) do
-    if cx >= s.x and cx < s.x + s.width and cy >= s.y and cy < s.y + s.height then
-      return s
-    end
-  end
-  return nil
+--- 返回当前获得输入焦点的屏幕
+function M.active_screen()
+  return wezterm.gui.screens().active
 end
 
 return M

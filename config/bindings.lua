@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local platform = require("utils.platform")
+local domains = require("config.domains")
 local act = wezterm.action
 
 -- =====================================================================
@@ -23,7 +24,7 @@ local keys = {}
 -- ==================== General / Misc (all Ctrl+ prefix) ====================
 do
   local t = {
-    { key = "F1", mods = "CTRL", action = "ActivateCopyMode" },
+    { key = "F1", mods = "CTRL", action = act.ActivateCopyMode },
     { key = "F2", mods = "CTRL", action = act.ActivateCommandPalette },
     { key = "F3", mods = "CTRL", action = act.ShowLauncher },
     { key = "F4", mods = "CTRL", action = act.ShowTabNavigator },
@@ -81,7 +82,6 @@ end
 do
   local t = {
     { key = "t", mods = mod.SUPER, action = act.SpawnTab("DefaultDomain") },
-    { key = "t", mods = mod.SUPER_REV, action = act.SpawnTab({ DomainName = "WSL:Arch" }) },
     { key = "w", mods = mod.SUPER_REV, action = act.CloseCurrentTab({ confirm = false }) },
     { key = "[", mods = mod.SUPER, action = act.ActivateTabRelative(-1) },
     { key = "]", mods = mod.SUPER, action = act.ActivateTabRelative(1) },
@@ -95,6 +95,8 @@ do
     -- toggle tab-bar (master: SUPER+9)
     { key = "9", mods = mod.SUPER, action = act.EmitEvent("tabs.toggle-tab-bar") },
   }
+  local wsl = domains.wsl_domains[1]
+  if wsl then table.insert(t, 2, { key = "t", mods = mod.SUPER_REV, action = act.SpawnTab({ DomainName = wsl.name }) }) end
   for _, v in ipairs(t) do table.insert(keys, v) end
 end
 
@@ -189,16 +191,16 @@ local key_tables = {
     { key = "k", action = act.IncreaseFontSize },
     { key = "j", action = act.DecreaseFontSize },
     { key = "r", action = act.ResetFontSize },
-    { key = "Escape", action = "PopKeyTable" },
-    { key = "q", action = "PopKeyTable" },
+    { key = "Escape", action = act.PopKeyTable },
+    { key = "q", action = act.PopKeyTable },
   },
   resize_pane = {
     { key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
     { key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
     { key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
     { key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
-    { key = "Escape", action = "PopKeyTable" },
-    { key = "q", action = "PopKeyTable" },
+    { key = "Escape", action = act.PopKeyTable },
+    { key = "q", action = act.PopKeyTable },
   },
 }
 
