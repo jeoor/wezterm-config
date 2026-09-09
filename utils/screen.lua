@@ -2,7 +2,10 @@ local wezterm = require("wezterm")
 
 local M = {}
 
-local state_file = wezterm.config_dir .. "/.screen_state"
+-- Keep mutable runtime state outside the config tree. Writing it under
+-- wezterm.config_dir triggers automatically_reload_config, which reloads this
+-- module, clears last_saved_name and creates a write/reload loop.
+local state_file = wezterm.home_dir .. "/.local/share/wezterm/screen_state"
 local last_saved_name = nil
 local retry_after = 0
 local SAVE_RETRY_SECONDS = 60

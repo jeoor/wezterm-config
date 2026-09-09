@@ -1,14 +1,16 @@
 local wezterm = require("wezterm")
 local colors = require("colors.custom")
-local gpu_adapter = require("utils.gpu-adapter")
 
 return {
   term = "xterm-256color",
   animation_fps = 60,
-  max_fps = 60,
-  front_end = "WebGpu",
-  webgpu_power_preference = "HighPerformance",
-  webgpu_preferred_adapter = gpu_adapter.pick_best(),
+  -- Match the internal panel's native refresh rate so scrolling/output is not
+  -- artificially capped at 60 Hz. This is only a ceiling, not a constant draw.
+  max_fps = 165,
+  -- WebGpu uses DX12 on Windows. This machine has recorded
+  -- DXGI_ERROR_DEVICE_REMOVED crashes in that path, so use the stable,
+  -- GPU-accelerated OpenGL renderer and let the graphics stack pick its adapter.
+  front_end = "OpenGL",
   underline_thickness = "1.5pt",
 
   -- color scheme
@@ -19,8 +21,10 @@ return {
 	color_scheme = "tokyonight_night",
 
   -- background
-  window_background_opacity = 0.95,
-  win32_system_backdrop = "Acrylic",
+  -- Acrylic is the most resource-intensive Windows backdrop. Keep the custom
+  -- background image, but make the window opaque to avoid DWM blur/compositing.
+  window_background_opacity = 1.0,
+  win32_system_backdrop = "Disable",
   window_background_gradient = {
     colors = { "#1a1b26", "#363b54" },
     orientation = { Linear = { angle = -45.0 } }

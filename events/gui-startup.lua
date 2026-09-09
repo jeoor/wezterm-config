@@ -4,6 +4,7 @@ local screen = require("utils.screen")
 
 local M = {}
 local WINDOW_RATIO = 0.65
+local SCREEN_POLL_INTERVAL_SECONDS = 10
 
 local function copy_table(source)
   local copy = {}
@@ -43,21 +44,33 @@ M.setup = function()
   end)
 
   -- 记录当前屏幕的辅助函数
-  local function track_screen(win)
+  local last_screen_poll = 0
+  local function track_screen(win, force)
     -- window-focus-changed 会同时为失焦窗口触发，只记录获得焦点的窗口。
     if not win:is_focused() then return end
+
+    local now = os.time()
+    if not force and now - last_screen_poll < SCREEN_POLL_INTERVAL_SECONDS then return end
+    last_screen_poll = now
+
     local s = screen.active_screen()
     if s then screen.save_screen_name(s.name) end
   end
 
   -- 窗口大小变化时更新（全屏切换也会触发）
-  wezterm.on("window-resized", track_screen)
+  wezterm.on("window-resized", function(window, _pane)
+    track_screen(window, true)
+  end)
 
   -- 窗口焦点变化时更新（拖到另一块屏幕后点击一下即生效）
-  wezterm.on("window-focus-changed", track_screen)
+  wezterm.on("window-focus-changed", function(window, _pane)
+    track_screen(window, true)
+  end)
 
   -- WezTerm 没有窗口移动事件；定期校准可覆盖只移动、不缩放的情况。
-  wezterm.on("update-status", track_screen)
+  wezterm.on("update-status", function(window, _pane)
+    track_screen(window, false)
+  end)
 end
 
 return M

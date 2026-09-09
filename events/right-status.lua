@@ -49,7 +49,15 @@ local cells = Cells:new()
    :add_segment("battery_text", "", colors.battery, attr(attr.intensity("Bold")))
    :add_segment("battery_icon", " ", colors.battery)
 
+local BATTERY_REFRESH_SECONDS = 30
+local battery_cache = { text = "", icon = "", fg = colors.battery.fg, refreshed_at = 0 }
+
 local function battery_info()
+   local now = os.time()
+   if now - battery_cache.refreshed_at < BATTERY_REFRESH_SECONDS then
+      return battery_cache.text, battery_cache.icon, battery_cache.fg
+   end
+
    local total_soc = 0
    local any_charging = false
    local any_low = false
@@ -67,7 +75,8 @@ local function battery_info()
    end
 
    if count == 0 then
-      return "", "", colors.battery.fg
+      battery_cache = { text = "", icon = "", fg = colors.battery.fg, refreshed_at = now }
+      return battery_cache.text, battery_cache.icon, battery_cache.fg
    end
 
    local avg_soc = total_soc / count
@@ -83,7 +92,8 @@ local function battery_info()
       fg = any_low and colors.low.fg or colors.battery.fg
    end
 
-   return charge .. " ", icon .. " ", fg
+   battery_cache = { text = charge .. " ", icon = icon .. " ", fg = fg, refreshed_at = now }
+   return battery_cache.text, battery_cache.icon, battery_cache.fg
 end
 
 M.setup = function(opts)
